@@ -16,6 +16,7 @@ var Engine = (function(global) {
      */
     var doc = global.document,
         win = global.window,
+
         canvas = doc.createElement('canvas'),
         ctx = canvas.getContext('2d'),
         lastTime;
@@ -23,6 +24,14 @@ var Engine = (function(global) {
     canvas.width = 505;
     canvas.height = 606;
     doc.body.appendChild(canvas);
+
+    // 创建获胜时的显示信息
+    const successDiv = document.querySelector('.success');
+    const replayBtn = document.querySelector('.continue');
+    // 点击按钮时这些信息消失
+    replayBtn.onclick = function() {
+        successDiv.classList.add('noshow');
+    }
 
     /* 这个函数是整个游戏的主入口，负责适当的调用 update / render 函数 */
     function main() {
@@ -36,6 +45,8 @@ var Engine = (function(global) {
         /* 调用我们的 update / render 函数， 传递事件间隙给 update 函数因为这样
          * 可以使动画更加顺畅。
          */
+
+
         update(dt);
         render();
 
@@ -45,6 +56,11 @@ var Engine = (function(global) {
         /* 在浏览准备好调用重绘下一个帧的时候，用浏览器的 requestAnimationFrame 函数
          * 来调用这个函数
          */
+        //获胜时显示信息
+        if (player.isWin) {
+            successDiv.classList.remove('noshow');
+            player.isWin = false;
+        }
         win.requestAnimationFrame(main);
     }
 

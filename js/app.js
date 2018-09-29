@@ -32,7 +32,7 @@ class Enemy extends Entity {
         // 要应用到每个敌人的实例的变量写在这里
         // 我们已经提供了一个来帮助你实现更多
         super(x, y, 'images/enemy-bug.png');
-        this.speed = getRandomNum(20, 120); //使每个 enemy 的速度随机
+        this.speed = getRandomNum(30, 120); //使每个 enemy 的速度随机
 
     }
 
@@ -71,10 +71,17 @@ class Player extends Entity {
         // Player 的 x y 是否到达最上面一行
         if (this.y < 0) {
             setTimeout(() => {
+                this.isWin = true;
                 this.reset();
             }, 500);
         }
     }
+
+    // player 重置需要多重置一个 isWin
+    // reset() {
+    //     super.reset();
+    //     this.isWin = false;
+    // }
 
     handleInput(keyCode) {
         // 根据 keyCode 控制角色移动
@@ -103,23 +110,12 @@ class Player extends Entity {
     }
 }
 
-// class Star extends Entity {
-//     constructor(x, y) {
-//         super(x, y, 'images/Star.png');
-//     }
-
-//     reset() {
-//         // 使星星消失
-//         this.x = -200;
-//         this.y = -200;
-//     }
-// }
 
 // 现在实例化你的所有对象
 // 把所有敌人的对象都放进一个叫 allEnemies 的数组里面
 // 把玩家对象放进一个叫 player 的变量里面
-let allEnemies = [],
-    stars = [];
+let allEnemies = [];
+
 const numEnemies = 3,
     rowHigh = 83,
     colWid = 101,
@@ -127,12 +123,20 @@ const numEnemies = 3,
     maxWidth = 505,
     maxHight = 606;
 
+//参考 random MDN 官网示例，给出一个范围内的随机数
 function getRandomNum(min, max) {
     return Math.random() * (max - min) + min;
 }
 
-for (let i = 0; i < 3; i++) {
-    allEnemies.push(new Enemy(getRandomNum(0, 100), rowHigh * (i + 1) - spriteOffset));
+// 初始化 Enemy 实例，位置 x 随机，y 分别在 3 行石头路上
+let yOrigin;
+for (let i = 0; i < 4; i++) {
+    if (i === 3) {
+        yOrigin = rowHigh - spriteOffset;
+    } else {
+        yOrigin = rowHigh * (i + 1) - spriteOffset
+    }
+    allEnemies.push(new Enemy(getRandomNum(0, 100), yOrigin));
 }
 
 const player = new Player(colWid * 2, rowHigh * 5 - spriteOffset);
