@@ -11,21 +11,28 @@ class Entity {
     constructor(x, y, sprite) {
             this.x = x;
             this.y = y;
+            this.pos = [x, y]; //储存初始位置
             this.sprite = sprite;
         }
         // 此为游戏必须的函数，用来在屏幕上画出资源，
     render() {
         ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
     }
+
+    reset() {
+        //将 x 和 y 设置为最开始的位置
+        this.x = this.pos[0];
+        this.y = this.pos[1];
+    }
 }
 
 // 这是我们的玩家要躲避的敌人
 class Enemy extends Entity {
-    constructor(x, y, speed) {
+    constructor(x, y) {
         // 要应用到每个敌人的实例的变量写在这里
         // 我们已经提供了一个来帮助你实现更多
         super(x, y, 'images/enemy-bug.png');
-        this.speed = speed;
+        this.speed = getRandomNum(20, 120); //使每个 enemy 的速度随机
 
     }
 
@@ -34,7 +41,12 @@ class Enemy extends Entity {
     update(dt) {
         // 你应该给每一次的移动都乘以 dt 参数，以此来保证游戏在所有的电脑上
         // 都是以同样的速度运行的
-        this.x += this.speed * dt;
+
+        if (this.x < maxWidth) {
+            this.x += this.speed * dt;
+        } else {
+            this.reset();
+        }
     }
 };
 
@@ -43,28 +55,52 @@ class Enemy extends Entity {
 class Player extends Entity {
     constructor(x, y) {
         super(x, y, 'images/char-cat-girl.png');
+        this.isWin = false;
+    }
+
+
+    update() {
+        // 检测是否碰撞
+        for (let enemy of allEnemies) {
+            // console.log(this.y === enemy.y);
+            // TODO: 找到碰撞条件
+            if ((this.y === enemy.y) && ((this.x - enemy.x) < 20)) {
+                this.reset();
+                // console.log(this.x - enemy.x);
+            }
+        }
+
+        // 检测是否赢得游戏
+        // Player 的 x y 是否到达水流区域
+        if (this.y < 0) {
+            this.isWin = true;
+        }
     }
 
     handleInput(keyCode) {
         // 根据 keyCode 控制角色移动
         switch (keyCode) {
             case 'left':
-                this.x += colWid * (-1);
+                if (this.x > 0) {
+                    this.x -= colWid;
+                }
                 break;
             case 'up':
-                this.y += rowHigh * (-1);
+                if (this.y > 0) {
+                    this.y -= rowHigh;
+                }
                 break;
             case 'right':
-                this.x += colWid;
+                if (this.x <= colWid * 3) {
+                    this.x += colWid;
+                }
                 break;
             case 'down':
-                this.y += rowHigh;
+                if (this.y <= rowHigh * 4) {
+                    this.y += rowHigh;
+                }
                 break;
         }
-    }
-    update() {
-        // this.x = x0Player;
-        // this.y = y0Player;
     }
 }
 
@@ -72,20 +108,22 @@ class Player extends Entity {
 // 把所有敌人的对象都放进一个叫 allEnemies 的数组里面
 // 把玩家对象放进一个叫 player 的变量里面
 let allEnemies = [];
-const numEnemies = 3;
-const rowHigh = 83;
-const colWid = 101;
-const x0Enemy = 0;
-const y0Enemy = 60;
-const x0Player = 200;
-const y0Player = 408;
+const numEnemies = 3,
+    rowHigh = 83,
+    colWid = 101,
+    spriteOffset = 11,
+    maxWidth = 505,
+    maxHight = 606;
 
+function getRandomNum(min, max) {
+    return Math.random() * (max - min) + min;
+}
 
-allEnemies.push(new Enemy(x0Enemy, y0Enemy, 50));
-allEnemies.push(new Enemy(x0Enemy, y0Enemy + rowHigh, 60));
-allEnemies.push(new Enemy(x0Enemy, y0Enemy + rowHigh * 2, 30));
+for (let i = 0; i < 3; i++) {
+    allEnemies.push(new Enemy(getRandomNum(0, 100), rowHigh * (i + 1) - spriteOffset));
+}
 
-const player = new Player(x0Player, y0Player);
+const player = new Player(colWid * 2, rowHigh * 5 - spriteOffset);
 
 // 这段代码监听游戏玩家的键盘点击事件并且代表将按键的关键数字送到 Player.handleInput()
 // 方法里面。你不需要再更改这段代码了。
