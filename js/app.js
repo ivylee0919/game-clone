@@ -62,18 +62,17 @@ class Player extends Entity {
     update() {
         // 检测是否碰撞
         for (let enemy of allEnemies) {
-            // console.log(this.y === enemy.y);
-            // TODO: 找到碰撞条件
-            if ((this.y === enemy.y) && ((this.x - enemy.x) < 20)) {
+            if ((this.y === enemy.y) && (Math.abs(this.x - enemy.x) < colWid / 2)) {
                 this.reset();
-                // console.log(this.x - enemy.x);
             }
         }
 
         // 检测是否赢得游戏
-        // Player 的 x y 是否到达水流区域
+        // Player 的 x y 是否到达最上面一行
         if (this.y < 0) {
-            this.isWin = true;
+            setTimeout(() => {
+                this.reset();
+            }, 500);
         }
     }
 
@@ -104,10 +103,23 @@ class Player extends Entity {
     }
 }
 
+// class Star extends Entity {
+//     constructor(x, y) {
+//         super(x, y, 'images/Star.png');
+//     }
+
+//     reset() {
+//         // 使星星消失
+//         this.x = -200;
+//         this.y = -200;
+//     }
+// }
+
 // 现在实例化你的所有对象
 // 把所有敌人的对象都放进一个叫 allEnemies 的数组里面
 // 把玩家对象放进一个叫 player 的变量里面
-let allEnemies = [];
+let allEnemies = [],
+    stars = [];
 const numEnemies = 3,
     rowHigh = 83,
     colWid = 101,
